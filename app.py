@@ -55,6 +55,23 @@ if st.session_state.snapshots:
     # Grid View
     st.subheader("Comparison Grid")
     st.dataframe(df, use_container_width=True)
+
+    # Define how each column should look
+column_configuration = {
+    "Rate (%)": st.column_config.NumberColumn(format="%.1f%%"),
+    "Mo Pmt": st.column_config.NumberColumn(format="$%.2f"),
+    "Extra/Mo": st.column_config.NumberColumn(format="$%.2f"),
+    "Total Int": st.column_config.NumberColumn(format="$%.2f"),
+    "Savings": st.column_config.NumberColumn(format="$%.2f")
+}
+
+# Apply it to the dataframe
+st.dataframe(
+    df, 
+    column_config=column_configuration, 
+    use_container_width=True,
+    hide_index=True # Optional: makes the grid look more like a clean app
+)
     
     # Download Button
     csv = df.to_csv(index=False).encode('utf-8')
