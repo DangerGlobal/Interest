@@ -3,15 +3,15 @@ import numpy_financial as npf
 import pandas as pd
 import plotly.figure_factory as ff
 
-# Set page to wide mode for better comparison viewing
+# Set page layout
 st.set_page_config(layout="wide")
 st.title("Hodges Mortgage Strategy Dashboard")
 
-# 1. Session State Initialization (Persistent storage for the current session)
+# 1. Session State Initialization
 if 'snapshots' not in st.session_state:
     st.session_state.snapshots = []
 
-# 2. Sidebar: Data Management and Configuration
+# 2. Sidebar Configuration
 with st.sidebar:
     st.header("1. Data Management")
     
@@ -21,7 +21,7 @@ with st.sidebar:
         uploaded_df = pd.read_csv(uploaded_file)
         st.session_state.snapshots = uploaded_df.to_dict('records')
 
-    # DELETE FEATURE: Allows removing specific unwanted rows
+    # Delete Feature
     if st.session_state.snapshots:
         st.divider()
         st.subheader("🗑️ Remove Scenarios")
@@ -46,7 +46,7 @@ with st.sidebar:
         std_pmt = npf.pmt(m_rate, y * 12, -p)
         target_pmt = npf.pmt(m_rate, t * 12, -p)
         
-        # Financial Math for Interest and Savings
+        # Calculate interest costs based on the ACTUAL payoff time
         std_total_interest = (std_pmt * y * 12) - p
         actual_total_paid = target_pmt * (t * 12)
         true_total_interest = actual_total_paid - p
@@ -71,7 +71,7 @@ if st.session_state.snapshots:
     
     st.subheader("Comparison Grid")
 
-    # Interactive Grid Column Formatting
+    # Formatting columns for the interactive grid
     column_configuration = {
         "Rate (%)": st.column_config.NumberColumn(format="%.1f%%"),
         "Base Pmt": st.column_config.NumberColumn(format="$%,.2f"),
@@ -81,7 +81,6 @@ if st.session_state.snapshots:
         "Savings": st.column_config.NumberColumn(format="$%,.2f")
     }
 
-    # Display the interactive grid
     st.dataframe(
         df, 
         column_config=column_configuration, 
@@ -89,37 +88,30 @@ if st.session_state.snapshots:
         hide_index=True
     )
     
-    # Exportable Image View (Plotly Table)
     st.divider()
     st.subheader("Exportable Image View")
-    st.info("Hover over the table below and click the 📷 (camera) icon to download as a PNG/JPG.")
+    st.info("Hover over the table and click the 📷 icon to download as an image.")
     
-    # Create a copy for formatting strings in the image export
+    # Format a copy for the Plotly table export
     img_df = df.copy()
     money_cols = ["Base Pmt", "Extra/Mo", "Total Pmt", "Total Int Cost", "Savings"]
     for col in money_cols:
         img_df[col] = img_df[col].apply(lambda x: f"${x:,.2f}")
     
-    # Generate the table image
     fig = ff.create_table(img_df)
     st.plotly_chart(fig, use_container_width=True)
 
-    # File Download Button
+    # Download CSV
     csv = df.to_csv(index=False).encode('utf-8')
     st.download_button(
-        label="💾 Download Comparison as CSV",
+        label="💾 Download CSV",
         data=csv,
         file_name='mortgage_scenarios.csv',
         mime='text/csv',
     )
     
-    # Visual Bar Chart of Savings
-    st.divider()
-    st.subheader("Interest Savings by Scenario")
-    st.bar_chart(df.set_index("Name")["Savings"])
-    
     if st.button("Clear All Data"):
         st.session_state.snapshots = []
         st.rerun()
 else:
-    st.info("Configure a scenario in the sidebar and click 'Save to Grid' to see the comparison.")
+    st.info("Set your mortgage details in the sidebar and click 'Save to Grid' to start comparing.")
