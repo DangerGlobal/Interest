@@ -1,4 +1,5 @@
+streamlit
 pandas
 numpy-financial
-streamlit
 plotly
+altair==4.2.2
