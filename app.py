@@ -56,16 +56,15 @@ if st.session_state.snapshots:
     
     st.subheader("Comparison Grid")
 
-    # Corrected Column Configuration to match your dictionary keys
-    column_configuration = {
-        "Rate (%)": st.column_config.NumberColumn(format="%.1f%%"),
-        "Base Pmt": st.column_config.NumberColumn(format="$%.2f"),
-        "Extra/Mo": st.column_config.NumberColumn(format="$%.2f"),
-        "Total Pmt": st.column_config.NumberColumn(format="$%.2f"),
-        "Total Int Cost": st.column_config.NumberColumn(format="$%.2f"),
-        "Savings": st.column_config.NumberColumn(format="$%.2f")
-    }
-
+# Updated to match your dictionary keys exactly
+column_configuration = {
+    "Rate (%)": st.column_config.NumberColumn(format="%.1f%%"),
+    "Base Pmt": st.column_config.NumberColumn(format="$%.2f"),
+    "Extra/Mo": st.column_config.NumberColumn(format="$%.2f"),
+    "Total Pmt": st.column_config.NumberColumn(format="$%.2f"),
+    "Total Int Cost": st.column_config.NumberColumn(format="$%.2f"), # Fixed this key
+    "Savings": st.column_config.NumberColumn(format="$%.2f")
+}
     # Display the grid once with the config
     st.dataframe(
         df, 
