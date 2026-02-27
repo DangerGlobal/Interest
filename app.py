@@ -71,14 +71,14 @@ if st.session_state.snapshots:
     
     st.subheader("Comparison Grid")
 
-    # Formatting columns for the interactive grid
+# Use the 'dollar' shorthand or a standard format string that avoids the placeholder error
     column_configuration = {
         "Rate (%)": st.column_config.NumberColumn(format="%.1f%%"),
-        "Base Pmt": st.column_config.NumberColumn(format="$%,.2f"),
-        "Extra/Mo": st.column_config.NumberColumn(format="$%,.2f"),
-        "Total Pmt": st.column_config.NumberColumn(format="$%,.2f"),
-        "Total Int Cost": st.column_config.NumberColumn(format="$%,.2f"),
-        "Savings": st.column_config.NumberColumn(format="$%,.2f")
+        "Base Pmt": st.column_config.NumberColumn(format="$%f"), 
+        "Extra/Mo": st.column_config.NumberColumn(format="$%f"),
+        "Total Pmt": st.column_config.NumberColumn(format="$%f"),
+        "Total Int Cost": st.column_config.NumberColumn(format="$%f"),
+        "Savings": st.column_config.NumberColumn(format="$%f")
     }
 
     st.dataframe(
