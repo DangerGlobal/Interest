@@ -14,11 +14,9 @@ if 'snapshots' not in st.session_state:
 with st.sidebar:
     st.header("1. Data Management")
     
-    # Upload previous work
     uploaded_file = st.file_uploader("Upload saved snapshots (.csv)", type="csv")
     if uploaded_file is not None:
         uploaded_df = pd.read_csv(uploaded_file)
-        # Convert back to list of dicts for session state
         st.session_state.snapshots = uploaded_df.to_dict('records')
 
     st.divider()
@@ -33,6 +31,9 @@ with st.sidebar:
         m_rate = (r / 100) / 12
         std_pmt = npf.pmt(m_rate, y * 12, -p)
         target_pmt = npf.pmt(m_rate, t * 12, -p)
+        
+        # Math for Savings
+        std_total_interest = (std_pmt * y * 12) - p
         actual_total_paid = target_pmt * (t * 12)
         true_total_interest = actual_total_paid - p
         
@@ -40,38 +41,38 @@ with st.sidebar:
             "Name": name,
             "Rate (%)": r,
             "Orig Term": y,
-            "Payoff Target": t,
+            "Target": t,
             "Base Pmt": round(std_pmt, 2),
             "Extra/Mo": round(target_pmt - std_pmt, 2),
             "Total Pmt": round(target_pmt, 2),
-            "Total Interest Cost": round(true_total_interest, 2)
+            "Total Int Cost": round(true_total_interest, 2),
+            "Savings": round(std_total_interest - true_total_interest, 2)
         }
         st.session_state.snapshots.append(new_data)
 
-# 3. Main Display
+# 3. Main Display (Everything inside this IF block)
 if st.session_state.snapshots:
     df = pd.DataFrame(st.session_state.snapshots)
     
-    # Grid View
     st.subheader("Comparison Grid")
-    st.dataframe(df, use_container_width=True)
 
-    # Define how each column should look
-column_configuration = {
-    "Rate (%)": st.column_config.NumberColumn(format="%.1f%%"),
-    "Mo Pmt": st.column_config.NumberColumn(format="$%.2f"),
-    "Extra/Mo": st.column_config.NumberColumn(format="$%.2f"),
-    "Total Int": st.column_config.NumberColumn(format="$%.2f"),
-    "Savings": st.column_config.NumberColumn(format="$%.2f")
-}
+    # Corrected Column Configuration to match your dictionary keys
+    column_configuration = {
+        "Rate (%)": st.column_config.NumberColumn(format="%.1f%%"),
+        "Base Pmt": st.column_config.NumberColumn(format="$%.2f"),
+        "Extra/Mo": st.column_config.NumberColumn(format="$%.2f"),
+        "Total Pmt": st.column_config.NumberColumn(format="$%.2f"),
+        "Total Int Cost": st.column_config.NumberColumn(format="$%.2f"),
+        "Savings": st.column_config.NumberColumn(format="$%.2f")
+    }
 
-# Apply it to the dataframe
-st.dataframe(
-    df, 
-    column_config=column_configuration, 
-    use_container_width=True,
-    hide_index=True # Optional: makes the grid look more like a clean app
-)
+    # Display the grid once with the config
+    st.dataframe(
+        df, 
+        column_config=column_configuration, 
+        use_container_width=True,
+        hide_index=True
+    )
     
     # Download Button
     csv = df.to_csv(index=False).encode('utf-8')
@@ -82,10 +83,9 @@ st.dataframe(
         mime='text/csv',
     )
     
-    # Visuals
     st.divider()
     st.subheader("Interest Cost Visualized")
-    st.bar_chart(df.set_index("Name")["Total Interest Cost"])
+    st.bar_chart(df.set_index("Name")["Total Int Cost"])
     
     if st.button("Clear Grid"):
         st.session_state.snapshots = []
